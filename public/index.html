@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Skladač promptů na plakáty</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E8ECEF;--panel:#F7F8F9;--ink:#1B2433;--mute:#5B6573;--line:#BFC7D0;--hot:#E6007E;--out:#1B2433;--outt:#E8ECEF;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161D;--panel:#1B212B;--ink:#E8ECEF;--mute:#9AA5B3;--line:#343E4C;--hot:#FF4DA6;--out:#E8ECEF;--outt:#12161D}}
+:root[data-theme="dark"]{--bg:#12161D;--panel:#1B212B;--ink:#E8ECEF;--mute:#9AA5B3;--line:#343E4C;--hot:#FF4DA6;--out:#E8ECEF;--outt:#12161D}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 18px 48px}
+h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1;margin:0 0 8px;font-weight:800;letter-spacing:-.03em}
+.sub{color:var(--mute);margin:0 0 28px;max-width:56ch}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+fieldset{border:0;border-top:2px solid var(--ink);margin:0 0 22px;padding:10px 0 0}
+legend{font-weight:800;font-size:1.05rem;padding:0 8px 0 0}
+label{display:block;font-size:.9rem;color:var(--mute);margin:10px 0 4px}
+select,input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-height:44px}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--hot);outline-offset:1px}
+.sw{display:flex;gap:6px;margin-top:8px}
+.swc{flex:1;min-width:0;height:48px;padding:0;border:1px solid var(--line);border-radius:6px;background:none;cursor:pointer}.swc::-webkit-color-swatch-wrapper{padding:0}.swc::-webkit-color-swatch{border:0;border-radius:5px}.swc::-moz-color-swatch{border:0;border-radius:5px}
+.cust{display:none;gap:8px;margin-top:8px}
+.cust.on{display:flex}
+.cust input[type=color]{width:100%;height:44px;border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:2px}
+.cin{display:none;margin-top:8px}.empty{opacity:.65}
+.foot{margin-top:36px;padding-top:16px;border-top:2px solid var(--ink)}.foot a{color:var(--ink);font-weight:800;display:inline-block;padding:10px 0;text-underline-offset:4px;text-decoration-thickness:2px;text-decoration-color:var(--hot)}
+.hint{font-size:.85rem;color:var(--mute);margin:6px 0 0}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer;color:var(--ink);font-size:.95rem;margin:0}
+.chk input{margin-top:5px;width:18px;height:18px;accent-color:var(--hot);flex:none}
+.chk b{display:block;font-weight:600}
+.chk span{color:var(--mute);font-size:.85rem}
+.out{position:sticky;top:12px;background:var(--out);color:var(--outt);border-radius:10px;padding:18px}
+@media(max-width:820px){.out{position:static}}
+.out h2{margin:0 0 10px;font-size:1.1rem}
+pre{white-space:pre-wrap;word-break:break-word;margin:0;font:14px/1.55 ui-monospace,Menlo,Consolas,monospace;max-height:60vh;overflow:auto}
+.btns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+button{font:inherit;font-weight:800;border:0;border-radius:6px;padding:12px 18px;min-height:44px;cursor:pointer;background:var(--hot);color:#fff}
+button.alt{background:transparent;color:var(--outt);border:1px solid var(--outt)}
+.ok{color:var(--hot);font-weight:600;align-self:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Skladač promptů na plakáty</h1>
+<p class="sub">Vyberte styl, barvy a text. Prompt vpravo se skládá sám. Zkopírujte ho do GPT (nebo jiného generátoru obrázků).</p>
+<div class="grid">
+<div>
+<fieldset><legend>Akce a styl</legend>
+<label for="akce">Typ akce</label><select id="akce"></select>
+<input type="text" class="cin" id="akceC" placeholder="Vlastní akce anglicky, např. a book launch">
+<label for="styl">Styl plakátu</label><select id="styl"></select>
+<input type="text" class="cin" id="stylC" placeholder="Vlastní styl anglicky, např. watercolor illustration">
+<p class="hint" id="stylHint"></p>
+<label for="format">Formát</label><select id="format"></select>
+<input type="text" class="cin" id="formatC" placeholder="Vlastní formát, např. 60x90 cm roll-up banner">
+</fieldset>
+
+<fieldset><legend>Barvy</legend>
+<label for="pal">Paleta</label><select id="pal"></select>
+<div class="sw" id="sw"></div>
+<div class="cust" id="cust">
+<input type="color" id="c1" value="#F1E7D0" aria-label="Pozadí"><input type="color" id="c2" value="#1B2433" aria-label="Hlavní barva"><input type="color" id="c3" value="#E6007E" aria-label="Doplňková barva">
+</div>
+<p class="hint" id="palHint"></p>
+</fieldset>
+
+<fieldset><legend>Motiv a vzhled</legend>
+<label for="motiv">Jediný hlavní motiv</label><select id="motiv"></select>
+<input type="text" class="cin" id="motivC" placeholder="Vlastní motiv anglicky, např. a snail with a hat">
+<label for="font">Písmo</label><select id="font"></select>
+<input type="text" class="cin" id="fontC" placeholder="Např. firemní písmo: Montserrat Bold (nebo podobné)">
+<label for="lay">Rozložení</label><select id="lay"></select>
+<label for="mood">Nálada</label><select id="mood"></select>
+</fieldset>
+
+<fieldset><legend>Moje obrázky (dekorace)</legend>
+<label class="chk"><input type="checkbox" id="img"><div><b>Mám vlastní obrázky a chci je přidat</b><span>Obrázky přiložíte v chatu spolu s promptem (PNG, JPG).</span></div></label>
+<div id="imgBox" style="display:none">
+<label for="imgDesc">Co na obrázcích je (anglicky)</label><input type="text" id="imgDesc" placeholder="např. gold stars and a small pumpkin">
+<label for="imgBg">Pozadí obrázků</label><select id="imgBg"></select>
+<label for="imgPos">Kam je umístit</label><select id="imgPos"></select>
+<p class="hint">Generátor může obrázek mírně změnit. Pro přesný výsledek nechte vygenerovat jen pozadí a PNG si na něj vložte v Canvě nebo ve Photoshopu.</p>
+</div>
+</fieldset>
+
+<fieldset><legend>Text na plakátu</legend>
+<label for="nadpis">Nadpis</label><input type="text" id="nadpis" maxlength="40">
+<label for="pos1">Umístění nadpisu</label><select id="pos1"></select>
+<label for="druhy">Druhý řádek (např. datum a místo)</label><input type="text" id="druhy" maxlength="60">
+<label for="pos2">Umístění druhého řádku</label><select id="pos2"></select>
+<label for="treti">Třetí řádek (např. vstupné, web)</label><input type="text" id="treti" maxlength="60">
+<label for="pos3">Umístění třetího řádku</label><select id="pos3"></select>
+<label class="chk" style="margin-top:10px"><input type="checkbox" id="notext"><div><b>Bez textu, dopíšu ho sám</b><span>Doporučeno pro češtinu. Generátor často kazí háčky a čárky.</span></div></label>
+</fieldset>
+</div>
+
+<div>
+<fieldset><legend>Pojistky proti „AI vzhledu“</legend><div id="sent"></div></fieldset>
+<fieldset><legend>Profesionální doladění</legend><div id="pro"></div></fieldset>
+<div class="out">
+<h2>Hotový prompt</h2>
+<pre id="prompt"></pre>
+<div class="btns"><button id="copy">Zkopírovat prompt</button><button class="alt" id="rnd">Náhodný nápad</button><span class="ok" id="ok" role="status"></span></div>
+</div>
+</div>
+</div>
+<footer class="foot"><a href="https://cenklova.cz/ai-mentor-2/" target="_blank" rel="noopener">Kurzy AI a jak s ní pracovat líp</a></footer>
+</div>
+<script>
+var A=[["a party","Párty"],["a birthday party","Narozeniny"],["a wedding","Svatba"],["a Valentine's Day event","Valentýn"],["a family celebration","Rodinná oslava"],["a Christmas event","Vánoce"],["a concert","Koncert"],["a Halloween party","Halloween"],["a film night","Filmová noc"],["a local bakery or cafe","Kavárna / pekárna"],["a workshop or talk","Workshop / přednáška"],["a community market or charity event","Trh / charita"],["a club night","Klubová noc"],["an exhibition opening","Vernisáž"],["a sale or promotion","Slevová akce"]];
+var S=[
+["Swiss International Typographic style poster","Švýcarský typografický","mřížka, velké písmo, hodně bílého místa. Hodí se na konference a výstavy.","Strict 12-column grid, flat vector, clean print."],
+["minimalist typography-only poster","Minimalistický (jen písmo)","žádná ilustrace, jen nadpis a malý text.","Flat vector, no illustration, only type and one simple shape."],
+["risograph-printed poster","Risograf","dvě barvy, zrno, posunuté vrstvy. Indie akce a koncerty.","Visible grain, halftone dots, slight misregistration between color layers, imperfect ink coverage."],
+["brutalist typographic poster","Brutalistický","obří oříznuté písmo, vysoký kontrast. Techno a kluby.","Huge cropped type, high contrast, flat, grid lines."],
+["vintage screen-printed poster","Retro sítotisk","plochy, omezená paleta. Letní kino, retro akce.","Flat shapes, screen-print look, subtle ink imperfections."],
+["clean modern flyer in the style of a Canva template","Čistý leták (Canva)","přátelské písmo, jednotné okraje. Podniky a komunitní akce.","Rounded shapes, consistent margins, flat design."],
+["paper cut-out collage poster","Papírový kolaž","vystřižené tvary, nedokonalé linky. Dětské akce, jarmarky.","Hand-cut paper shapes, subtle paper texture, imperfect edges."],
+["vintage 1950s B-movie horror poster","B-movie horor","křiklavé, malované. Pozor: snadno se přeplácá, nechte jen jeden motiv.","Hand-painted flat look, printed on aged paper, simple."],
+["watercolor illustration poster","Akvarel","jemné rozpité barvy a papír s texturou. Svatby, jarní akce, kavárny, dětské akce.","Soft hand-painted watercolor washes, visible paper texture, organic bleeding edges, matte, with plenty of bare paper showing."],
+["romantic, elegant poster","Romantický","něžný, vzdušný, kaligrafické písmo. Svatby, Valentýn, oslavy.","Soft and delicate, thin refined lines, airy, generous margins, matte finish."],
+["woodcut / linocut print poster","Dřevoryt / lino","hrubé linky, silný kontrast. Folk akce, Halloween, pivovary.","Rough carved lines, bold black-and-white contrast, printed texture."]];
+var F=[["A3 portrait","A3 na výšku"],["A4 portrait","A4 na výšku"],["A5 portrait flyer","A5 leták"],["1080x1350 px (Instagram portrait)","Instagram 1080×1350"],["1080x1920 px (story)","Story 1080×1920"],["50x70 cm portrait","50×70 cm"]];
+var P=[
+["Krémová + tmavě zelená + oranžová",["#F1E7D0","#1F4D3A","#E8742C"]],
+["Světle šedá + černá + žlutá",["#E9E9E6","#111111","#F5C400"]],
+["Tmavě modrá + krémová + růžová",["#14213D","#F4E9D0","#FF5FA2"]],
+["Papír + fialová + limetková",["#F0EBDD","#5B2A86","#B6FF3B"]],
+["Pudrová růžová + burgundy + zlatá",["#F6DDE0","#6D1230","#C9972B"]],
+["Černá + oranžová + bílá",["#111111","#FF6A13","#F4F4F4"]],
+["Světle modrá + hnědá + okr",["#CFE3EC","#4A2F20","#D9A441"]],
+["Pastelová růžová + šalvějová + krémová",["#FBF3EE","#8FA58A","#E9A8B4"]],
+["Pudrová modrá + lila + broskvová",["#F7F4EF","#8DA9C4","#E8B4A0"]],
+["Tyrkysová + rudá + krémová",["#1E8C8C","#C8261E","#F1E7D0"]]];
+var M=[
+["a pumpkin with a weird, funny face","Dýně s legrační tváří"],["a small ghost wearing boots","Duch v botách"],["a black cat sitting on a fence","Černá kočka na plotě"],["a skull with flowers growing from it","Lebka s květinami"],["a hand reaching out of the ground","Ruka vylézající ze země"],["a single mushroom with a tiny ghost under its cap","Houba s duchem"],["a haunted house as a flat silhouette","Strašidelný dům"],["a bat","Netopýr"],["a vinyl record","Gramofonová deska"],["a cassette tape","Kazeta"],["a coffee cup","Šálek kávy"],["a croissant","Croissant"],["a bicycle","Kolo"],["a sunflower","Slunečnice"],["a film projector","Filmový projektor"],["a disco ball drawn as flat shapes","Disco koule"],["abstract geometric shapes","Abstraktní tvary"],["a wavy line pattern","Vlnky"],["a hand-drawn leaf pattern","Listy"],["a loose bouquet of wildflowers","Kytice polních květin"],["a single peony","Pivoňka"],["a pair of roses","Dvě růže"],["a branch of cherry blossoms","Větvička třešňových květů"],["a heart drawn with one continuous line","Srdce jedním tahem"],["a sealed love letter envelope","Zalepená obálka"],["only typography, no illustration","Jen písmo"],["custom","Vlastní motiv..."]];
+var T=[
+["bold condensed grotesk capitals","Tučný úzký grotesk"],["huge chunky hand-cut letters","Ručně vyřezané tlusté"],["elegant high-contrast serif","Elegantní antikva"],["monospace typewriter type","Strojopis"],["spooky hand-drawn lettering","Strašidelné ručně kreslené"],["slanted block letters with a thick outline","Šikmé blokové s obrysem"],["friendly rounded sans-serif","Kulatý přátelský"],["elegant flowing calligraphy script","Kaligrafické psané"],["delicate thin handwritten script","Jemné ručně psané"],["light elegant sans-serif with wide letter spacing","Světlý elegantní sans s rozestupy"]];
+var L=[
+["asymmetric, left-aligned, strong grid","Asymetrické vlevo"],["centered with generous margins","Na střed, široké okraje"],["diagonal composition","Diagonála"],["headline cropped off the edge of the page","Nadpis oříznutý o okraj"],["framed by a thick border like a ticket","Rám jako vstupenka"],["centered, with a delicate floral arrangement in the corners and lots of white space","Květiny v rozích, vzdušně"],["vertical headline along the left side","Svislý nadpis"]];
+var MO=[["playful and cheeky","Hravá"],["calm and refined","Klidná"],["serious and dramatic","Vážná a dramatická"],["energetic and loud","Energická"],["premium and understated","Luxusní, decentní"],["underground and rebellious","Undergroundová"],["cozy and homemade","Domácká"],["campy and funny","Kýčovitě vtipná"],["romantic and dreamy","Romantická, snová"],["soft and tender","Jemná, něžná"]];
+var POS=[["at the bottom","Dole"],["at the top","Nahoře"],["on the left","Vlevo"],["across the middle","Přes střed"],["wherever the designer finds best","Nechám na generátoru"]];
+var SE=[
+["If in doubt, leave it out.","Když si nejsi jistý, vynech to","Generátor nepřidává dekorace a výplně.",1],
+["At least 50% of the poster is empty space.","Aspoň polovina plochy prázdná","Plakát dýchá a vypadá navržený.",1],
+["One single subject only.","Jediný hlavní motiv","Jasné těžiště, žádný chaos.",1],
+["No glossy gradients, no glow, no 3D, no shadows, no lens flare.","Zákaz AI efektů","Plochý grafický vzhled místo lesku.",1],
+["No people, no scenery, no background elements.","Žádné postavy a pozadí","Zjednoduší kompozici.",0],
+["No extra text, no badges, no borders, no decorations.","Zákaz všeho navíc","Žádné vymyšlené nápisy a rámečky.",1],
+["Render exactly the text provided and nothing else.","Jen zadaný text","Méně náhodných pseudo-slov.",1],
+["Subtle paper grain only.","Jen jemné zrno papíru","Lehká tištěná textura bez špíny.",0],
+["","Prázdné místo na text, který doplním sám","Zapněte jen když text doplňujete sami. Když text vyplníte výše, vypněte to.",0]];
+function $(i){return document.getElementById(i)}
+function fill(id,arr,li,custom){var s=$(id);var o=document.createElement("option");o.value="";o.textContent="— vyberte —";s.appendChild(o);arr.forEach(function(a,i){o=document.createElement("option");o.value=i;o.textContent=a[li===undefined?1:li];s.appendChild(o)});if(custom){o=document.createElement("option");o.value="custom";o.textContent=custom;s.appendChild(o)}}
+fill("akce",A,1,"Vlastní...");fill("styl",S,1,"Vlastní...");fill("format",F,1,"Vlastní...");fill("pal",P,0,"Vlastní barvy...");fill("motiv",M.slice(0,-1),1,"Vlastní motiv...");fill("font",T,1,"Vlastní / firemní písmo...");fill("lay",L);fill("mood",MO);fill("pos1",POS);fill("pos2",POS);fill("pos3",POS);var IB=[["png","Průhledné (PNG)"],["cut","Není průhledné, ořízni"],["unknown","Nevím, ať se postará generátor"]];var IP=[["in the corners","V rozích"],["along the bottom edge","Podél spodního okraje"],["around the headline","Kolem nadpisu"],["scattered evenly across the poster","Rozptýlené po ploše"],["as a frame along the poster edges","Jako rám po okrajích"],["wherever the designer finds best","Nechám na generátoru"]];fill("imgBg",IB);fill("imgPos",IP);
+$("pal").lastChild.value="99";
+$("sent").innerHTML=SE.map(function(s,i){return '<label class="chk"><input type="checkbox" data-s="'+i+'"'+(s[3]?" checked":"")+'><div><b>'+s[1]+'</b><span>'+s[2]+'</span></div></label>'+(i==8?'<div style="padding:8px 0 4px 28px"><label for="emptyArea" style="margin:0 0 4px">Kde nechat prázdno</label><select id="emptyArea"><option value="bottom 20%">Spodní pětina</option><option value="top 20%">Horní pětina</option><option value="left third">Levá třetina</option><option value="right third">Pravá třetina</option></select></div>':"")}).join("");
+var PR=[
+["Clear size hierarchy: the headline is dominant and at least three times larger than the secondary text, the third line is the smallest.","Jasná hierarchie velikostí","Nadpis dominuje, ostatní řádky jsou výrazně menší.",1,1],
+["High contrast between text and background, all text easily readable at a glance.","Vysoký kontrast textu","Text je čitelný i z dálky a na malém displeji.",1,1],
+["Keep all important elements inside safe margins, at least 5% from every edge, nothing accidentally cut off.","Bezpečné okraje","Nic důležitého se neřízne a plakát nepůsobí stísněně.",0,1],
+["Align elements to a consistent grid and shared axes with consistent spacing.","Zarovnání na mřížku","Prvky mají společné osy a stejné odstupy.",0,1],
+["Use one typeface family with at most two weights.","Jedna rodina písma","Plakát působí sjednoceně, ne jako směs fontů.",1,1],
+["Print-ready look: sharp crisp edges, high resolution, clean details.","Čisté, ostré detaily pro tisk","Hodí se, pokud plakát půjde do tiskárny.",0,0]];
+$("pro").innerHTML=PR.map(function(x,i){return '<label class="chk"><input type="checkbox" data-p="'+i+'"'+(x[4]?" checked":"")+'><div><b>'+x[1]+'</b><span>'+x[2]+'</span></div></label>'}).join("");
+function cols(){var v=$("pal").value;if(v==="99")return [$("c1").value,$("c2").value,$("c3").value];if(v==="")return null;return P[v][1]}
+function pick(id,arr,ci){var v=$(id).value;if(v==="")return "";if(v==="custom")return $(ci).value.trim();return arr[v][0]}
+function build(){
+$("imgBox").style.display=$("img").checked?"block":"none";
+["akce","styl","format","motiv","font"].forEach(function(id){$(id+"C").style.display=$(id).value==="custom"?"block":"none"});
+var sv=$("styl").value;$("stylHint").textContent=(sv!==""&&sv!=="custom")?S[sv][2]:"";
+var c=cols();
+$("cust").style.display="none";
+var sw=$("sw");
+if(!sw.children.length){["Pozadí","Hlavní barva","Doplňková barva"].forEach(function(n,i){var e=document.createElement("input");e.type="color";e.className="swc";e.title=n+": kliknutím změníte";e.setAttribute("aria-label",n);e.addEventListener("input",function(){var cur=cols();if(!cur)return;cur=cur.slice();cur[i]=e.value;$("c1").value=cur[0];$("c2").value=cur[1];$("c3").value=cur[2];$("pal").value="99";build()});sw.appendChild(e)})}
+sw.style.display=c?"flex":"none";
+if(c)for(var k=0;k<3;k++){if(sw.children[k].value!==c[k].toLowerCase())sw.children[k].value=c[k]}
+$("palHint").textContent=c?"Pozadí "+c[0]+", hlavní "+c[1]+", doplňková "+c[2]+". Kliknutím na barvu ji změníte.":"";
+var ev=pick("akce",A,"akceC"),fmt=pick("format",F,"formatC"),fnt=pick("font",T,"fontC"),lay=pick("lay",L),mood=pick("mood",MO);
+var mv=$("motiv").value,motif=mv==="custom"?$("motivC").value.trim():(mv===""?"":M[mv][0]);
+var stT="",tex="";if(sv==="custom")stT=$("stylC").value.trim();else if(sv!==""){stT=S[sv][0];tex=S[sv][3]}
+var lines=[["Headline",$("nadpis").value.trim(),pick("pos1",POS)],["Secondary line",$("druhy").value.trim(),pick("pos2",POS)],["Third line",$("treti").value.trim(),pick("pos3",POS)]];
+var notext=$("notext").checked,imgOn=$("img").checked;
+var any=ev||fmt||fnt||lay||mood||motif||stT||c||lines.some(function(l){return l[1]||l[2]})||notext||imgOn;
+var pre=$("prompt"),cb=$("copy");
+if(!any){pre.textContent="Tady se objeví prompt, jakmile vyplníte první políčko.";pre.className="empty";cb.disabled=true;return}
+pre.className="";cb.disabled=false;
+var p="A "+(sv==="custom"?"poster in this style: "+(stT||"graphic design"):(stT||"graphic design poster"))+(fmt?", "+fmt:"")+(ev?", for "+ev:"")+"."+(tex?" "+tex:"")+"\n\n";
+if(c)p+="Colors: background "+c[0]+", main color "+c[1]+", accent "+c[2]+". Only these colors, nothing else.\n\n";
+if(motif)p+=(motif.indexOf("only typography")===0?"Visual: only typography, no illustration.":"Main visual: "+motif+", drawn as one bold simple shape with minimal detail.")+"\n\n";
+if(imgOn){var ib=pick("imgBg",IB),ip=pick("imgPos",IP),idc=$("imgDesc").value.trim();
+p+="Attached images: I am attaching "+(idc?"images of "+idc:"decorative images")+". Use them exactly as provided as decorative elements. Do not redraw, restyle, recolor or distort them."+(ib==="png"?" They have transparent backgrounds, so add no boxes or outlines around them.":ib==="cut"?" They do not have transparent backgrounds: first cut out each subject cleanly along its edges and remove the old background, then place it.":ib==="unknown"?" If an image has a background, cut out the subject cleanly first.":"")+(ip?" Place them "+ip+".":"")+"\n\n"}
+if(notext){p+="Text: none. Do not render any text or letters. Leave a clean empty area"+(lines[0][2]?" "+lines[0][2]:"")+" for text added later.\n\n"}
+else{var tl=lines.filter(function(l){return l[1]});
+if(tl.length){tl.forEach(function(l){p+=l[0]+": \""+l[1]+"\""+(l[2]?", placed "+l[2]:"")+".\n"});p+="\n"}
+if(fnt)p+="Typography: "+(T.some(function(t){return t[0]===fnt})?fnt:"the typeface "+fnt+" or the closest look-alike")+".\n\n"}
+if(notext&&fnt){}
+if(lay||mood)p+=(lay?"Layout: "+lay+". ":"")+(mood?"Mood: "+mood+".":"")+"\n\n";
+var sel=[];document.querySelectorAll("[data-s]").forEach(function(x){if(!x.checked)return;var k=+x.dataset.s,t=SE[k][0];
+if(k===8)t="Leave the "+$("emptyArea").value+" of the poster empty, no text, reserved for text added later.";
+if(imgOn&&k===2)t="One single main subject, plus the attached decorative images only.";
+if(imgOn&&k===5)t="No extra text, badges or borders. No decorations other than the attached images.";
+sel.push(t)});
+var pro=[];document.querySelectorAll("[data-p]").forEach(function(x){var q=PR[x.dataset.p];if(!x.checked)return;if(q[3]&&(notext||!lines.some(function(l){return l[1]})))return;pro.push(q[0])});
+p+=(sel.length?sel.join(" ")+"\n\n":"")+pro.join(" ");
+pre.textContent=p.trim();}
+document.querySelectorAll("select,input").forEach(function(e){e.addEventListener("input",build);e.addEventListener("change",build)});
+$("copy").onclick=function(){var t=$("prompt").textContent;function done(){$("ok").textContent="Zkopírováno";setTimeout(function(){$("ok").textContent=""},1800)}
+function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");done()}catch(e){$("ok").textContent="Označte text a zkopírujte ručně"}document.body.removeChild(a)}
+try{navigator.clipboard.writeText(t).then(done,fb)}catch(e){fb()}};
+$("emptyArea").addEventListener("change",function(){document.querySelector('[data-s="8"]').checked=true;build()});
+$("rnd").onclick=function(){[["styl",S.length],["pal",P.length],["motiv",M.length-1],["font",T.length],["lay",L.length],["mood",MO.length]].forEach(function(x){$(x[0]).value=Math.floor(Math.random()*x[1])});build()};
+build();
+</script>
+</body>
+</html>
